@@ -53,17 +53,31 @@ async function run() {
         res.send({ status: 409, message: "Already in used this username" });
         return;
       }
-
       const result = await registerUserCollection.insertOne(user);
       res.send({ status: 200, result });
     });
 
     app.get("/login", async (req, res) => {
-      const user = req.body;
-      const username = user.username;
-      const password = user.password;
-      const result = await registerUserCollection.findOne();
-      res.send(result);
+      const username = req.query?.username;
+      const password = req.query?.password;
+      const existUsername = await registerUserCollection.findOne({
+        username: username,
+      });
+      const isMatched = await registerUserCollection.findOne({
+        password: password,
+      });
+
+      if (existUsername == null) {
+        res.send({ status: 404, message: "No user found" });
+        return;
+      }
+      if (isMatched == null) {
+        res.send({ status: 404, message: "Incorrect password" });
+        return;
+      }
+      if (existUsername && isMatched) {
+        res.send({ status: 200, message: existUsername });
+      }
     });
   } finally {
     // await client.close();
