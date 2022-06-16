@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
+const jwt = require("jsonwebtoken");
 
 const app = express();
+app.use(express.urlencoded({ extended: false }));
+app.set("view engine", "ejs");
 
 app.use(cors());
 app.use(express.json());
@@ -24,7 +27,7 @@ async function run() {
       .collection("registerUser");
 
     // User Register API
-    app.post("/registerUser", async (req, res) => {
+    app.post("/register", async (req, res) => {
       const user = req.body;
       const existEmail = await registerUserCollection.findOne({
         email: user.email,
@@ -57,6 +60,7 @@ async function run() {
       res.send({ status: 200, result });
     });
 
+    // User Register API
     app.get("/login", async (req, res) => {
       const username = req.query?.username;
       const password = req.query?.password;
@@ -79,6 +83,40 @@ async function run() {
         res.send({ status: 200, message: existUsername });
       }
     });
+
+    // Forget Password API
+    app.get("/forgot-password", (req, res, next) => {
+      res.render("forgot-password");
+    });
+
+    app.post("/forgot-password", async (req, res, next) => {
+      const { email } = req.body;
+      const existEmail = await registerUserCollection.findOne({
+        email: email,
+      });
+
+      if (existEmail == null) {
+        res.send("User not register");
+        return;
+      }
+
+      // User exist and now create a one time link valid for 15minutes
+      const secret = process.env.JWT_SECRET + existEmail?.password;
+      const payload = {
+        email: existEmail?.email,
+        id: existEmail?._id,
+      };
+      const token = jwt.sign(payload, secret, { expiresIn: "15m" });
+      const link = `http://localhost:5000/reset-password/${existEmail?._id}/${token}`;
+      console.log(link);
+      res.send({
+        status: 200,
+        message: "Password reset link has been sent to your email",
+      });
+    });
+
+    app.get("/forgot-password", (req, res, next) => {});
+    app.post("/forgot-password", (req, res, next) => {});
   } finally {
     // await client.close();
   }
