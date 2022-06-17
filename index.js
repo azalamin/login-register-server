@@ -114,7 +114,7 @@ async function run() {
         id: existEmail?._id,
       };
       const token = jwt.sign(payload, secret, { expiresIn: "15m" });
-      const link = `http://localhost:5000/forgot-password/${existEmail?.email}/${token}`;
+      const link = `https://login-register-server-az.herokuapp.com/forgot-password/${existEmail?.email}/${token}`;
       console.log(link);
 
       res.send({
@@ -128,7 +128,7 @@ async function run() {
           to: existEmail?.email,
           subject: "Reset Password",
           html: `<div>
-            <p>Please reset your password by the below link</p>
+            <p>Please reset your password by the below link: ${link}</p>
             <p>
                 <a href=${link} target='_blank'>Click here</a>
             </p>
