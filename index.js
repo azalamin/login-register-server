@@ -184,7 +184,17 @@ async function run() {
       try {
         const payload = jwt.verify(token, secret);
         existEmail.password = password2;
-        res.send(existEmail);
+        const filter = { email: existEmail?.email };
+        const options = { upsert: true };
+        const updatedUser = {
+          $set: existEmail,
+        };
+        const result = await registerUserCollection.updateOne(
+          filter,
+          updatedUser,
+          options
+        );
+        res.send("Password updated");
       } catch (error) {
         console.log(error);
         res.send(error?.message);
