@@ -16,8 +16,12 @@
     "dotenv": "^16.0.1",
     "ejs": "^3.1.8",
     "express": "^4.18.1",
+    "form-data": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^4.7.0"
+    "mailgun-js": "^0.22.0",
+    "mongodb": "^4.7.0",
+    "nodemailer": "^6.7.5",
+    "nodemailer-mailgun-transport": "^2.1.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"
